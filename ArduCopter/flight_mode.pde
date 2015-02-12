@@ -29,6 +29,10 @@ static bool set_mode(uint8_t mode)
             #endif
             break;
 
+        case SILANDING:
+            success = silanding_init(ignore_checks);
+            break;
+
         case STABILIZE:
             #if FRAME_CONFIG == HELI_FRAME
                 success = heli_stabilize_init(ignore_checks);
@@ -133,6 +137,10 @@ static void update_flight_mode()
             #else
                 acro_run();
             #endif
+            break;
+
+        case SILANDING:
+            silanding_run();
             break;
 
         case STABILIZE:
@@ -288,6 +296,9 @@ print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case ACRO:
         port->print_P(PSTR("ACRO"));
+        break;
+    case SILANDING:
+        port->print_P(PSTR("SILANDING"));
         break;
     case ALT_HOLD:
         port->print_P(PSTR("ALT_HOLD"));
