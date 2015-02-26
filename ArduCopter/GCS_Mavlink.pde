@@ -982,16 +982,14 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
     // SIMPLEINT: Handle manual_override packet
     case MAVLINK_MSG_ID_MANUAL_CONTROL:      // MAV ID: 69
     {
+
         if(msg->sysid != g.sysid_my_gcs) break;                         // Only accept control from our gcs
         mavlink_manual_control_t packet;
         mavlink_msg_manual_control_decode(msg, &packet);
 
-        /*
-        // exit immediately if this command is not meant for this vehicle
-        if (mavlink_check_target(packet.target_system,packet.target_component)) {
+        // Only handle this packet if we are in SI mode
+        if(control_mode != SILANDING)
             break;
-        }
-        */
 
         int16_t v[4];
 
@@ -1001,7 +999,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         v[2] = (int) ((packet.z - -1000.0) * (g.rc_3.radio_max - 1000.0) / (1000.0 - -1000.0) + g.rc_3.radio_min);
         v[3] = (int) ((packet.y - -1000.0) * (g.rc_4.radio_max - 1000.0) / (1000.0 - -1000.0) + g.rc_4.radio_min);
     
-        // SIMPLEINTTODO: MAKE SURE THIS ALLOWS RX TRANSMITTER TO CHANGE FLIGHT MODE
+        // SIMPLEINTTODO: THIS WILL PROBABLY OVERWRIDE THESE CHANNELS NO MATTER THE FLIGHT MODE
         hal.rcin->set_overrides(v, 4);
 
         break;
