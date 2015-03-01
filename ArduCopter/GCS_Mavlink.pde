@@ -982,16 +982,18 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
     // SIMPLEINT: Handle manual_override packet
     case MAVLINK_MSG_ID_MANUAL_CONTROL:      // MAV ID: 69
     {
-
         if(msg->sysid != g.sysid_my_gcs) break;                         // Only accept control from our gcs
         mavlink_manual_control_t packet;
         mavlink_msg_manual_control_decode(msg, &packet);
 
+        int16_t v[4];
+
         // Only handle this packet if we are in SI mode
         if(control_mode != SILANDING)
+        {
+            hal.rcin->clear_overrides();
             break;
-
-        int16_t v[4];
+        }
 
         // SIMPLEINTTODO: I'm sure there's a builtin map function for rc values somewhere...
         v[0] = (int) ((packet.r - -1000.0) * (g.rc_1.radio_max - 1000.0) / (1000.0 - -1000.0) + g.rc_1.radio_min);
